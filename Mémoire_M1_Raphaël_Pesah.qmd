@@ -1,0 +1,610 @@
+---
+#title: "" #"Travail autonome - Data Management"
+#subtitle: "" #"Sujet exploratoire : Stratification sociale et pratiques culturelles numériques. Vers un élitisme culturel numérique ?"
+#author: "" # "Raphaël Pesah"
+lang: fr
+toc: false # si on met true la toc s'affiche au tout début du document
+# lot: true
+number-sections: true # gives numbers to section headings
+toc-title: "" #"Table des matières" # remplace par du vide le texte "Table of contents" généré par la commande Latex \tableofcontents 
+crossref:
+  tbl-title: Tableau # par défaut c'est "Table" (cf Quarto.org -> Authoring -> Cross References)
+  tbl-prefix: Tableau # idem, affichage quand c'est une référence dans le texte
+  lot-title: "" # remplace par du vide le texte "List of Tables" généré par la commande Latex \listoftables
+  lof-title: "" # pour figures
+format:
+  pdf:
+    mainfont: Times New Roman #body
+    sansfont: Times New Roman #titles
+    fontsize: 12pt
+    geometry: "left=2.54cm,right=2.54cm,top=2.5cm,bottom=2.54cm" # pris du mémoire M2 Forcadell
+    df-print: kable # prints df using kable function (cf Quarto Computations tuto)
+    #include-in-header:
+     # - text: |
+      #    \usepackage{setspace}
+    header-includes:
+      - "\\usepackage{setspace}" # pour faire marcher : https://stackoverflow.com/a/2052208
+      - "\\onehalfspacing"
+      - "\\usepackage{changepage}"
+      #- "\\usepackage{tcolorbox}"
+execute:
+  echo: false # by default don't display code chunks
+  warning: false # by default don't display warning messages (I think)
+editor: visual
+bibliography: references.bib
+nocite: |
+  @serres2012
+link-citations: true
+linkcolor: black #all links (but not url) are black
+urlcolor: black #all links (but not url) are black
+csl: apa.csl
+---
+
+```{r}
+#| label: chargement-donnees-fonctions
+#| include: false
+
+source("Quatrieme_brouillon.R")
+```
+
+\thispagestyle{empty}
+
+```{=tex}
+\minipage{0.5\textwidth}
+    \center
+```
+\scriptsize\scshape École des Hautes Études en Sciences Sociales
+\endminipage
+\minipage{0.5\textwidth}
+    \center
+    \scriptsize\scshape École Normale Supérieure
+\endminipage
+\vspace{-0.5cm}
+
+```{=tex}
+\begin{figure}[ht]
+    \minipage{0.5\textwidth}
+        \center
+        \includegraphics[height=2cm]{Logos/Logo_EHESS}
+    \endminipage
+    \minipage{0.5\textwidth}
+        \center
+        \includegraphics[height=2cm]{Logos/Logo_ENS-PSL}
+    \endminipage
+\end{figure}
+```
+\vspace{-0.25cm}
+
+```{=tex}
+\begin{center}
+
+Master Sciences sociales - Parcours Quantifier en sciences sociales\\
+2022-2023
+
+\vspace{1cm}
+
+MÉMOIRE DE RECHERCHE M1
+
+\vspace{2cm}
+
+{\Huge Une génération du numérique ?}\\
+\vspace{0.05cm}
+{\LARGE L’appropriation différenciée des pratiques\\
+\vspace{0.035cm}
+culturelles numériques chez les jeunes}
+
+\vspace{2.5cm}
+
+{\Large \textit{Soutenu par}\\
+\vspace{0.2cm}
+Raphaël Pesah}
+
+\vspace{1cm}
+
+{\large Année 2022-2023}
+
+\vspace{0.25cm}
+
+\end{center}
+```
+\newpage
+
+\tableofcontents
+
+\newpage
+
+# Avant-propos {.unnumbered}
+
+Ce mémoire a été rédigé à l'aide du système de publication open source Quarto, développé par les créateurs de R Markdown, et qui permet de générer un document au format PDF en passant par le système de composition \LaTeX.
+
+Le code R utilisé pour la génération des statistiques, des tableaux et des graphiques est disponible à l'adresse suivante : https://github.com/raphaelpesah/memoire_pratiques_culturelles_numeriques
+
+Entre autres, les packages suivants ont été utilisés :
+
+\- pour la manipulation de données, les packages du `tidyverse`
+
+\- pour les graphiques, `ggplot2`
+
+\- pour la génération et la mise en forme des tableaux, `gtsummary` et `kableExtra`
+
+\- pour l'ACM et la CAH, `FactoMiner` et `factoextra`
+
+\newpage
+
+```{=tex}
+\begin{adjustwidth}{2cm}{2cm}
+« Pour la première fois sans doute de l’histoire, le public, les individus, les personnes, le passant appelé naguère vulgaire, bref Petite Poucette, pourront et peuvent détenir au moins autant de sagesse, de science, d’information, de capacité de décision que les [grandes institutions]. [...] [Ce renversement] touche toutes les concentrations, même productrices et industrielles, même langagières, même culturelles, pour bénéficier à des distributions larges, multiples et singulières. » - (Serres, 2012)
+\end{adjustwidth}
+```
+# Introduction {.unnumbered}
+
+::: {#espace}
+:::
+
+Dans son essai *Petite Poucette* paru en 2012, le philosophe Michel Serres exprime son optimisme face à l'expansion des technologies numériques, en soutenant l'idée que la diffusion des pratiques numériques constituerait un changement culturel voire anthropologique majeur. Les jeunes générations, qu'il désigne par l'expression « petite poucette », en référence à la capacité élevée qu'il perçoit d'elles à utiliser des écrans tactiles, se distingueraient alors des précédentes par des compétences et une culture numériques partagées égalitairement. Pourtant la même année, Fabienne Gire et Fabien Granjon [-@gire2012] mettaient au jour le poids de l'origine sociale et du genre dans les usages des écrans des 15-34 ans[^1].
+
+[^1]: Ils écrivent par exemple : « Aussi est-il communément admis que le numérique s'immisce toujours davantage dans le quotidien des Français et devient une ressource culturelle majeure de la jeunesse. Si l'assertion n'est pas une contre-vérité à son plus haut niveau de généralité, dans la mesure où nombre des pratiques portées par les jeunes les distinguent effectivement de leurs aînés, il est toutefois indispensable de préciser que derrière ce qui est présenté comme la nouvelle culture numérique des jeunes se cachent in fine des culturèmes sensiblement différenciés (et différenciants), ainsi que des modalités variées d'appropriation. »
+
+À l'instar du discours de Michel Serres, le terme fréquemment employé de *digital natives*, suggère une telle homogénéité dans les usages, au risque d'occulter des logiques sociales de stratification ou genrées. Certains travaux soutiennent alors que ce type de conceptions, qui insistent sur l'idée d'une maîtrise du numérique presque automatique chez les jeunes, risquent au contraire d'asseoir des inégalités sociales dans les pratiques [@savage2017].
+
+Mais comment appréhender ces disparités sociales liées au numérique ? Plusieurs chercheurs ont adressé des critiques à l'égard des approches en termes de fracture numérique, focalisées sur l'identification de barrières techniques à l'accès sans égard pour les différentes formes d'appropriation culturelles, indissociables des conditions sociales [@pasquier2019; @guichard2011]. De manière contrastée, le concept de capital numérique a été proposé, permettant de prolonger l'étude des logiques distinctives bourdieusiennes [@ignatow2017] : il pourrait être défini de manière synthétique comme « la portée, l'échelle, et la sophistication du comportement en ligne » d'une personne[^2]. Une littérature récente s'est ainsi saisie de la question des formes socialement différenciées des usages et pratiques numériques, en particulier culturelles. Plusieurs types de pratiques ont fait l'objet de travaux sur leurs modalités d'appropriation par différents groupes sociaux : par exemple, Dominique Pasquier [-@pasquier2018 ] s'est penchée notamment sur les apprentissages en ligne et le rôle d'internet dans les sociabilités locales des classes populaires, Dominique Cardon [-@cardon2019] sur les activités de création des utilisateurs des réseaux sociaux, ou encore Jean-Baptiste Comby et al. [-@comby2011] sur les multiples formes d'appropriation de l'information en ligne au sein des catégories supérieures.
+
+[^2]: Traduit de l'anglais : « a person's stock of digital capital corresponds to the reach, scale, and sophistication of his or her online behavior »
+
+Dans une démarche à l'intersection de la sociologie du numérique, de la sociologie des usages[^3], et de la sociologie des pratiques culturelles, nous proposons dans cette étude de prolonger les questionnements mentionnés ci-dessus en analysant les pratiques culturelles numériques des jeunes Français, à partir des données de l'édition 2018 de l'enquête Pratiques Culturelles des Français, présentée dans l'encadré ci-dessous. Nous porterons une attention particulière aux formes stratifiées d'appropriation, que ce soit selon des logiques d'origine sociale, de genre ou encore d'âge. Il s'agira de se demander : *quelles sont les différentes formes d'utilisation et modes d'appropriation du numérique dans le cadre des pratiques culturelles des jeunes Français, et quelles sont les logiques qui les sous-tendent ?*
+
+[^3]: Voir par exemple [@boullier2016].
+
+La catégorie du numérique étant large, nous pouvons reprendre la définition de « culture numérique » que retient Florian Dauphin [-@dauphin2012], à savoir « l'ensemble de valeurs, connaissances, pratiques qui impliquent l'usage d'outils informatisés, pratiques de consommation culturelle, médiatique, de communication et d'expression de soi ». L'interrogation sur l'appropriation nous conduira quant à elle à analyser la diversité des usages et supports utilisés pour les pratiques culturelles numériques. Elle renvoie aussi aux travaux distinguant différents publics des pratiques culturelles sur les plateformes numériques participatives, comme les figures du consommateur, de l'usager, et de l'amateur [@casemajor2018].
+
+Notre choix d'étudier en particulier la jeunesse plutôt que l'ensemble de la population a été motivé par le fait que, sans tomber dans une perception essentialisante, les jeunes restent la catégorie dont la pratique numérique se situe au niveau le plus élevé [@lombardo2020] [^4]. Plutôt que d'adopter une approche comparative des pratiques culturelles numériques des différentes classes d'âge, nous avons pris le parti de nous restreindre aux 15-29 ans, afin de mettre au jour les logiques de pratiques internes à ce groupe. Sans négliger l'ambivalence du terme de « jeunesse » [@dupont2014], les frontières de 15 et 29 ans ont été choisies en s'appuyant sur des travaux comme ceux de Roudet [-@roudet2012], ou Octobre [-@octobre2014], qui évoque un ensemble d'éléments qui « incitent les chercheurs et responsables des politiques publiques à considérer désormais la jeunesse de manière plus extensive, jusqu'à 29 ans (Galland, 2011) ». Nous présentons les principales caractéristiques l'échantillon étudié dans le @tbl-repartition-genre-age-diplparents-pcs.
+
+[^4]: Voir aussi la @fig-graph_freq_connexion_internet, qui reproduit le *Graphique 1* de Donnat [-@donnat2009] 10 ans plus tard.
+
+Dans une première partie, nous explorons les grandes tendances à la fois de massification et de distinction sociale dans les pratiques numériques déclarées par les jeunes. Ensuite, nous tâchons de dessiner des profils de pratiques numériques, pour cerner les axes de structuration forts et les styles de consommation numérique qu'ils dessinent. Enfin, nous cherchons à identifier les déterminants de ces appropriations différenciées du numérique.
+
+```{r}
+#| label: tbl-repartition-genre-age-diplparents-pcs
+#| tbl-cap: "Répartition de la population étudiée par genre, âge, PCS et niveau de diplôme des parents"
+
+tab_desc_fusion
+```
+
+```{=tex}
+\begin{tcolorbox}[sharp corners, title={L’enquête Pratiques culturelles des Français 2018, l’échantillon étudié et les variables mobilisées}, fonttitle=\bfseries]
+
+L’édition 2018 de l’enquête Pratiques culturelles des Français, réalisée par le Département des études de la prospective, des statistiques et de la documentation (DEPS) du Ministère de la culture est la sixième édition d’une série d’enquêtes portant sur les pratiques culturelles et de loisirs des Français résidant en France métropolitaine. Incluant les réponses de 9 234 individus interrogés, la base issue de l’enquête renseigne sur environ 1 500 variables portant sur une diversité de pratiques, comme les activités de vacances, audiovisuelles ou de sorties. Du point de vue des pratiques numériques, elle fournit en particulier des données sur l’équipement numérique des foyers, les pratiques de visionnage de vidéos et d’écoute de musique sur support numérique, de jeux vidéos, d’utilisation des réseaux sociaux.\\
+
+\underline{Échantillon étudié :}\\
+
+Sur les 9 234 répondants, nous avons extrait un échantillon de 1 219 individus âgés de 15 ans à 29 ans (nous avons préalablement exclu les N = 64 individus dont la PCS indiquait « Autres personnes sans activité professionnelle », et pour lesquels la PCS des parents n’était pas renseignée). À partir des poids fournis par les concepteurs de l’enquête, nous avons appliqué une pondération pour les tableaux et graphiques de statistiques descriptives (sauf le Tableau 2), mais pas pour les analyses géométriques et les modèles de régression.\\
+
+\underline{Construction des variables socio-démographiques :}\\
+
+Nous présentons ici les partis pris méthodologiques dans la construction des variables socio-démographiques que nous utilisons au long de cette étude.\\
+
+-Pour la variable d’âge, nous avons choisi d’opérer un découpage en trois classes, compromis entre prise en compte des temps de la jeunesse (bien que ceux-ci soient poreux et rarement synchrones) et effectifs satisfaisants : les 15-19 ans, les 20-24 ans et les 25-29 ans.\\
+
+-Pour l’origine sociale, nous avons construit deux variables qui nous ont servi à différents moments de l’analyse. D’une part, nous avons pris le diplôme le plus élevé des deux parents pour la variable de niveau de diplôme des parents. D’autre part, la PCS a été construite par disjonction : pour les répondants encore étudiants, nous avons considéré la PCS ménage des parents recodée en suivant la nomenclature proposée par l’INSEE puis en cinq catégories ; pour les autres, nous avons directement pris leur propre PCS en cinq catégories.\\
+
+\end{tcolorbox}
+```
+# Des pratiques culturelles numériques largement diffusées auprès des jeunes français ?
+
+## Tendances sur la place du numérique chez les jeunes
+
+Avant d'observer dans le détail les pratiques des jeunes Français, s'intéresser un instant à leur taux d'équipement numérique permet de poser les termes matériels du questionnement et baliser à très gros traits certains types d'usages.
+
+```{r}
+#| label: fig-taux-equipement
+#| fig-cap: "Taux d’équipement numérique chez les jeunes Français (15-29 ans)"
+#| fig-cap-location: top
+
+graph_taux_equipement
+```
+
+L'homogénéité des taux d'équipement est assez claire (@fig-taux-equipement) : si fracture numérique il y a au sein de différentes catégories de jeunes, elle n'est pas à chercher du côté matériel. Cette massification des outils numériques se fait le support d'un essor considérable des pratiques numériques au cours de la dernière décennie [@lombardo2020, p.1-5]. Le visionnage de la vidéo, l'écoute de musique en ligne et la pratique de jeux vidéos sont devenus des phénomènes très partagés au sein des jeunes Français. On lit cependant une forme de stratification sociale concernant la possession d'un ordinateur : 84% des jeunes dont aucun des parents n'a le bac possèdent un ordinateur dans leur foyer, contre 96% pour ceux dont au moins un parent est diplômé du supérieur.
+
+L'usage de l'informatique semble ainsi demeurer légèrement marqué par l'origine sociale, comme cela était très prégnant lors de la précédente enquête PCF [@gire2012]. Le non-usage de l'informatique était en effet observé plutôt chez les individus issus de milieux sociaux modestes, tandis que son usage assidu était plutôt le fait d'étudiants, et particulièrement ceux effectuant des études longues, pour qui l'informatique connectée apparaît incontournable, amenant à analyser cette dernière comme une « ressource culturelle durable ». Sans pouvoir entrer dans ce détail d'analyse à partir de ce graphique, nous pouvons imaginer retrouver les individus faisant ou ayant fait de longues études parmi ceux dont au moins un parent est diplômé du supérieur, au vu du poids de l'origine sociale dans la probabilité d'effectuer des études longues.
+
+Comme une autre tendance assez visible concernant le taux d'équipement, on note que la présence d'une tablette est en retrait en comparaison des autres supports. Ce type d'écran est en effet moins caractéristique des jeunes : on notera par exemple que comme le montre Berger [-@berger2020] dans son analyse de différents taux d'équipement des ménages à partir de données de l'INSEE, 79% des foyers ayant au moins un enfant entre 8 et 14 ans possèdent une tablette (contre 56% en moyenne dans l'échantillon étudié). La possession de la tablette peut être analysée comme un élément significatif dans la tendance à l'individualisation des pratiques culturelles via le numérique (notamment pointée par @mercklé2012), appuyée par la grande diversification des contenus et alimentée par un  style éclectique de consommation [@octobre2014a, p. 151-186], de plus en plus représenté parmi les profils de consommation culturelle. Ce support semble donc de plus en plus présent dans les foyers avec enfant, accompagnant l'autonomisation des consommations des plus jeunes, permettant au sein même de la sphère domestique une individualisation des pratiques et une exploration des goûts propres [@glevarec2009].
+
+Si les supports numériques ne disent pas grand chose des contenus (l'ère numérique étant particulièrement marquée par une dissociation forte des supports et des contenus), ils peuvent ainsi décrire des types et styles d'usage marqués par l'origine sociale ou l'âge, à la manière de l'ordinateur ou la tablette dont la privation ou la possession sont socialement signifiantes. Nous pouvons conclure à ce stade qu'à l'exception de l'ordinateur, où une stratification légère mais signifiante s'observe, les équipements numériques sont particulièrement homogènes entre les différentes origines sociales.
+
+Cependant, contre les discours faussement homogénéisant sur les *digital natives* mentionnés en introduction, nous souhaitons identifier les critères les plus déterminants des différentes pratiques numériques, sachant qu'au sein des populations jeunes s'entremêlent de manière complexe les critères de l'âge, de l'origine sociale et du genre [@détrez2017]. Nous reprenons à son étude la démarche de réalisation d'un tableau dressant des sous-catégories socio-démographiques afin de pouvoir observer ces effets croisés. Un fait caractéristique noté par Détrez et qu'on retrouve ici (@tbl-pratiques-complet-mis-en_forme), est la relative homogénéité, chez les jeunes, de nombreuses pratiques numériques selon l'origine sociale.
+
+```{r}
+#| label: tbl-pratiques-complet-mis-en_forme
+#| tbl-cap: "Pratiques numériques selon le genre, l'âge et l'origine sociale"
+
+tab_pratiques_complet_mis_en_forme
+```
+
+On note en effet que des pratiques assez peu distinctives en termes de légitimité (visionner des vidéos en ligne, écouter de la musique sur un support numérique, naviguer sur les réseaux sociaux), sont largement investies quelle que soit l'origine sociale, même si le taux de pratique est tendanciellement légèrement plus élevé en fonction de l'origine sociale. Une question que l'on se pose et que l'on investiguera par la suite concerne le fait de savoir si les quelques individus plus en retrait de ces pratiques -- plus souvent au sein des origines sociales moins favorisées -- sont les mêmes pour les différentes pratiques : cela nous renseignera sur l'existence éventuelle d'une logique de cumul des distances au numérique d'une certaine catégorie sociale, chose que ce tableau ne nous dit pas.
+
+Là où cependant une stratification sociale s'observe d'ores et déjà à partir de ce tableau, elle semble prolonger des distinctions déjà existantes au sein des pratiques non numériques : la lecture de la presse en ligne et l'écoute de podcast radio sont les deux pratiques les plus marquées socialement, avec un pic de lecture de la presse en ligne très net chez les 20-24 ans issus d'un milieu social plus favorisé (désignant sans doute en bonne partie un milieu étudiant), suivant ainsi les mêmes différenciations sociales que les pratiques d'information conventionnelles [@boyadjian2022].
+
+L'âge et le genre prennent ainsi la place de facteurs très discriminants sur certaines pratiques numériques : les jeux vidéos sont davantage pratiqués par les hommes, quels que soient l'âge et l'origine sociale, avec des rapports de fréquence entre les genres variant extrêmement peu selon l'origine sociale à classe d'âge égale (bien que le tableau ne permette pas d'effectuer un raisonnement toutes choses égales par ailleurs). Ces rapports sont d'ailleurs notablement élevés, laissant supposer des comportements de distinction genrée, fréquents aux âges jeunes [@détrez2017]. C'est ce que suggère le constat établi par Donnat [-@donnat2009] lorsqu'il relève que malgré la diffusion des jeux vidéos dans les années 1990, leur pratique est encore très masculine, et ce d'autant plus au sein des générations qui l'ont beaucoup investie (ce dernier élément donnant du poids à l'hypothèse de comportements de distinction genrée dans la détermination des objets de goûts et de dégoûts).
+
+D'autres fois, le genre et l'âge s'entremêlent dans leur propension à déterminer les usages : au sein des jeunes à origine sociale supérieure, ce sont d'abord les femmes (15-19 ans) qui pratiquent davantage en amateur via des outils numériques, puis les hommes en prennent la prédominance pour les classes d'âge suivantes. Nous pouvons peut-être lire ici un effet d'âge lié au genre, révélateur d'une précocité des adolescentes sur certaines pratiques, rattrapées plus tard par les hommes : la littérature sur le sujet a déjà pu révéler la manière dont l'âge ne joue pas uniquement sur les pratiques, « mais également \[sur\] le moment de leur pratique »  [@détrez2017].
+
+Ainsi, l'âge et le genre apparaissent particulièrement structurants sur les pratiques des classes jeunes, tandis que certaines pratiques déjà inégalement distribuées selon l'origine sociale sur des supports non numériques (comme la lecture de la presse) le demeurent sur supports numériques. Si l'origine sociale demeure peu distinctive sur diverses pratiques, nous proposons maintenant d'observer son influence sur leur diversification.
+
+## La stratification sociale de la diversification des pratiques numériques
+
+Nous présentons ainsi le nombre de pratiques numériques[^5] selon la PCS, l'âge et le genre (@tbl-nb_usages_en_fct_genre_age_pcs). Nous avons introduit une large variété de pratiques, que nous avons dissociées assez finement en termes de granularité, afin d'approcher une mesure de l'appropriation extensive du numérique. Nous avons construit un indicateur de diversification, en scorant simplement les pratiques retenues, afin d'obtenir ensuite une variable catégorielle à quatre modalités.
+
+[^5]: Voir @tbl-liste_var_pour_nb_usage_num pour le détail des variables retenues.
+
+```{r}
+#| label: tbl-nb_usages_en_fct_genre_age_pcs
+#| tbl-cap: "Nombre d'usages du numérique en fonction du genre, de l'âge, de la PCS"
+
+tab_nb_usages_en_fct_genre_age_pcs
+```
+
+On remarque que la distribution a l'apparence d'une courbe gaussienne[^6], de médiane 7 et de moyenne 6,7. Il est donc assez répandu au sein des jeunes d'avoir un nombre de pratiques plutôt élevé, et donc un usage diversifié du numérique.
+
+[^6]: Voir @fig-distribution_diversite_usages_numeriques.
+
+Assez nettement, les jeunes issues des milieux cadres sont ceux qui ont le moins de chance de se trouver dans la catégorie ayant un « usage limité » (très peu diversifié) du numérique : bien moins que la moyenne, i.e. 10% pour 15% en moyenne. Ils sont a contrario ceux qui ont le plus de chance d'avoir un « usage diversifié » ou « très diversifié ». Les jeunes issus de milieux indépendants sont un quart à figurer parmi ceux ayant l'usage le moins diversifié du numérique. On note cependant que la médiane de ce groupe, qui est la plus basse (et égale à celle des jeunes issus de milieux ouvriers) reste assez élevée en valeur absolue : 6. C'est la répartition de ce groupe qui est alors moins homogènement concentrée autour de taux élevés, avec un important sous-groupe en bas du score. L'origine sociale joue donc très nettement dans l'appropriation diversifiée du numérique. Au vu des variables que nous avons incluses (qui intègrent consommation de contenu en ligne -- musique, vidéos, films... -- mais aussi création, diffusion, cours en ligne), nous pouvons imaginer que la « technophilie » des jeunes (voir paragraphe suivant) est socialement située et se décline selon leur appartenance sociale : la recherche d'expressivité et de connexion avec les autres prend vraisemblablement des formes plus variées chez les jeunes issus de milieux privilégiés [@mercklé2012]. Nous pouvons aussi supposer que l'appétence à l'apprentissage en ligne est en partie une prolongation sur le temps libre de la culture scolaire, elle aussi socialement déterminée. Ainsi, un « éclectisme numérique » s'observe, qui répète, dans ses modalités propres, le constat bien connu de l'association entre diversité des pratiques culturelles et appartenance sociale favorisée.
+
+La distribution par l'âge est également assez structurante puisqu'on retrouve aussi un quart des 25-29 ans dans la catégorie d'usage limité : on peut se demander s'il s'agit-là d'un effet d'âge ou bien de génération. L'appropriation plus diverse du numérique peut en effet résider en un simple effet d'âge du fait de rapports spécifiques, bien établis dans la littérature, entre les adolescents et la technologie : Octobre [-@octobre2014a, p.63-107] analyse en effet que pour toutes les générations considérées par les enquêtes PCF depuis les années 1970, les pratiques juvéniles se caractérisent par une technophilie très nette (notamment, les plus jeunes s'emparent des nouveaux usages avant les autres, ce qui peut expliquer qu'ils soient les plus représentés au sein des praticiens diversifiés du numérique, étant donnée la multiplication récente des pratiques numériques). Ils sont également davantage en recherche de connexion avec les autres et d'expression de soi, pouvant donc être tendanciellement plus attirés par le large panel de pratiques offertes par le numérique. Les plus jeunes sont en effet ici surreprésentés dans les deux catégories ayant les usages les plus diversifiés. Une composante plus pragmatique de l'effet d'âge pourrait également résider dans des écarts de temps libre [@pronovost2009] selon les classes d'âge, même si cela répondrait peut-être plus à l'intensité qu'à la diversité des usages.
+
+Cependant, la massification des pratiques numériques et la pérennisation de la centralité de certaines d'entre elles (comme l'informatique connectée caractérisée par Gire et Granjon [-@gire2012] comme une « ressource culturelle durable »), suggèrent que cela pourrait aussi être un effet de génération. Nous n'avons pas le recul nécessaire pour l'étudier, mais un tel effet prédirait alors que le taux de diversification moyen des pratiques numériques s'accroîtrait durablement dans l'ensemble de la population. Enfin, le genre est lui aussi structurant, puisque près d'un cinquième des femmes se trouvent dans la catégorie de ceux présentant les usages les moins diversifiés du numérique. On peut supposer que l'univers du numérique reste culturellement plus masculin [@bonnafous2003] : on a pu voir que les jeux vidéos l'étaient beaucoup, on peut imaginer plus généralement retrouver le signe d'une valorisation et d'un goût de la culture numérique ainsi qu'une individualisation des pratiques plus forte chez les hommes [@gire2012], éléments que nous investiguerons davantage dans la partie suivante.
+
+Ces observations invitent à creuser l'étude des croisements des facteurs que nous avons déjà pu mesurer avec le @tbl-pratiques-complet-mis-en_forme ; nous tâcherons d'approfondir cette direction dans la suite de l'étude. Une autre dimension que nous pouvons d'ores et déjà ajouter à l'analyse est la prégnance relative des pratiques numériques sur les pratiques non numériques, qui nous donnera un peu plus d'information sur les profils de pratiques culturelles selon le milieu social.
+
+## La prégnance relative du numérique au sein des pratiques culturelles
+
+Nous avons détaillé le principe de construction du score de prégnance relative des pratiques numériques sur les pratiques non numériques dans l'encadré « Mesurer la prégnance relative des pratiques numériques » ci-dessous (les Tableaux [-@tbl-liste_var_pour_score_prat_cult_num] et [-@tbl-liste_var_pour_score_prat_cult__non_num] listent les variable utilisées). Un trait assez marquant est que, si les fréquences d'utilisation du numérique étaient légèrement plus élevées chez les jeunes issus d'une origine sociale favorisée (@tbl-pratiques-complet-mis-en_forme), la prégnance relative du numérique est quant à elle nettement plus élevée au sein des individus issus du monde ouvrier, tandis que celle des cadres est la plus faible (@fig-distrib_poids_relatif_num). En nombre absolu de pratiques, on observe que les jeunes de PCS cadres pratiquent un peu plus de tout, tandis que les jeunes issus de PCS ouvrière pratiquent un peu moins de tout :  les moyennes des scores de pratiques respectivement numériques et non numériques des jeunes de PCS cadres sont 0,72 et 0,65 ; ces indicateurs sont de 0,65 et 0,42 pour les PCS ouvriers. Les PCS indépendants déclarent quant à eux un peu moins de pratiques numériques que les ouvriers (score de 0,61) et un peu plus de pratiques non numériques (score de 0,46), d'où un ratio plus « équilibré », à la manière des cadres, même si leur nombre absolu de pratiques est plus faible. Le profil ouvrier semble donc se signaler par une concentration plus forte vers l'intérieur, que nous interrogerons dans la suite de l'étude.
+
+```{r}
+#| label: fig-distrib_poids_relatif_num
+#| fig-cap: "Prégnance relative des pratiques numériques selon la PCS"
+#| fig-cap-location: top
+#| warning: false # un warning venait de là
+
+distrib_poids_relatif_num
+```
+
+Pour confirmer l'effet de la catégorie sociale sur le niveau de prégnance relative, nous avons alors recours à un modèle de régression linéaire multiple (@tbl-modele_lin_mis_en_forme), qui nous permet d'adopter un raisonnement « toutes choses égales par ailleurs ». Nous cherchons à modéliser la variable à expliquer choisie, le score de prégnance relative (de moyenne 0,57 et d'écart-type 0,14, et que nous multiplions par 100 pour le modèle sans que l'interprétation ne soit changée), à l'aide des variables explicatives socio-démographiques que sont le genre, la classe d'âge et la PCS, ce qui nous permet de comparer l'ampleur des variations en fonction de différentes modalités.
+
+Les  coefficients que nous obtenons confirment le poids de la catégorie sociale dans l'explication des disparités face à la prégnance relative du numérique. En effet, alors que la différence entre les ouvriers et employés n'est pas significative (p-valeur de 0,3), le coefficient diminue de manière significative à mesure qu'on monte dans la stratification sociale, jusqu'à atteindre une différence de -7,7 quand on passe de la modalité ouvriers à la modalité cadres et professions intellectuelles supérieures, à âge et genre fixés. Ce constat vient appuyer nos observations antérieures sur une plus grande prégnance du numérique chez les individus issus du monde ouvrier.
+
+```{r}
+#| label: tbl-modele_lin_mis_en_forme
+#| tbl-cap: "Régression linéaire multiple sur le score de prégnance relative des pratiques culturelles numériques"
+
+tab_modele_lin_mis_en_forme
+```
+
+Au total, on observe ainsi au sein des catégories favorisées des logiques cumulatives à l'œuvre dans la participation aux activités culturelles. Pour ces publics, une insertion dans les pratiques numériques ne remplace pas les formes culturelles plus traditionnelles. Ainsi, d'une part les chances respectives d'avoir des taux de pratiques numériques et de pratiques non numériques apparaissent associées, et d'autre part les ouvriers sont plus nombreux en proportion à avoir un univers de pratique restreint et concentré sur des pratiques numériques.
+
+En ce qui concerne le premier constat, la typologie des différents profils de consommation dressée dans la partie suivante permettra d'investiguer davantage la question des pratiques éclectiques des catégories supérieures et la manière dont elles s'articulent avec la montée en proportion des pratiques numériques dans l'ensemble des consommations culturelles. Quant aux profils ouvriers les plus centrés autour du numérique et les plus « pauvres » en valeur absolue de pratiques (toutes confondues) nous pouvons d'ores et déjà émettre l'hypothèse de persistances d'un monde ouvrier plus tourné vers l'intérieur que l'extérieur, et se demander si le numérique a pris la place de la télévision comme activité tendanciellement centrale des foyers ouvriers [@schwartz2012], ou bien comment ce nouveau sous-ensemble d'écrans complète les pratiques audiovisuelles dans ces foyers.
+
+```{=tex}
+\begin{tcolorbox}[sharp corners, title={Mesurer la prégnance relative des pratiques numériques}, fonttitle=\bfseries]
+
+On souhaite mesurer à quel point le numérique est pratiqué relativement au non numérique.\\
+
+On procède en additionnant d’une part les pratiques numériques (sur une sélection de 7 possibles) et d’autre part les pratiques non numériques (sur une sélection de 9 possibles), puis en faisant le ratio de ces scores pondérés par le nombre de pratiques prises en compte.\\
+
+\[
+\text{Score prégnance relative} = \frac{\frac{1}{7} \times Nb_{\text{pratiques num.}}}{\frac{1}{7} \times Nb_{\text{pratiques num.}} + \frac{1}{9} \times Nb_{\text{pratiques non num.}}}
+\]
+
+
+On ne s'intéresse pas à la valeur de ce ratio dans l’absolu, mais uniquement dans une optique de comparaison entre les groupes sociaux.\\ 
+
+Concernant le choix des variables et modalités à inclure, on aurait pu trouver une façon de pondérer le nombre de pratiques par leur fréquence ou le temps passé, pour bien rendre compte de l’intensité respective des types de pratiques ; on aurait pu aussi cumuler le temps passé à toutes les pratiques (ce qui cette fois n’aurait pris en compte que l’intensité pure des pratiques respectivement numériques et non numériques, en les considérant de manière homogène, sans égard pour leurs diversifications respectives, que l’on choisit ici de considérer car elles nous paraissent signifiantes dans la manière d’apprécier qu’un profil est plus ou moins « numérique » ou « non numérique » culturellement parlant).\\
+
+\end{tcolorbox}
+```
+```{=tex}
+\begin{tcolorbox}[sharp corners, title={Mesurer la prégnance relative des pratiques numériques (suite)}, fonttitle=\bfseries]
+
+Pour savoir si l’on considérait ou non qu’une pratique était effectuée par un individu, en l’absence de continuum par la pondération du temps passé à cette pratique, on a défini des « seuils caractéristiques ». On a ainsi choisi :\\ 
+
+i. la fréquence hebdomadaire pour une part importante des activités « du quotidien » (pour les pratiques numériques : \textit{utiliser un équipement numérique pour regarder des contenus vidéos ou audiovisuels, utiliser le numérique pour se tenir informé, écouter de la musique enregistrée, naviguer sur les réseaux sociaux, jouer aux jeux vidéo} ; et pour les pratiques non numériques : \textit{regarder la télé, écouter la radio})\\
+
+ii. la fréquence annuelle pour les pratiques plus ponctuelles (\textit{assister à un spectacle vivant, assister à un concert, effectuer une visite culturelle, participer à un festival, produire ou créer dans le cadre de pratiques numériques, participer à un événement culturel virtuel})\\
+
+iii. enfin, pour deux pratiques à fréquence tendanciellement plus intermédiaire, nous avons choisi la médiane comme seuil caractéristique (5 occurrences par an pour le fait d’aller au \textit{cinéma}, et \textit{4 livres lus par an}).\\ 
+
+Ce redécoupage binaire via des critères de  fréquence, plutôt que l’introduction d’une forme de pondération, laisse planer le risque de trop mesurer les diversités respectives des pratiques numériques et non numériques, et de distordre ainsi le ratio qui est censé exprimer en bonne partie des intensités relatives.\\
+
+Pour limiter ce biais, nous avons tâché d’effectuer des recodages approximant au mieux un découpage de pratiques homogènes pour ne pas accroître artificiellement les scores (nous avons ainsi regroupé par exemple le fait de jouer au jeu vidéo hors-ligne et en ligne, mais aussi les différents types de visite virtuelle – concert/exposition/monument –, ou encore les différents types de concerts). Nous avons donc volontairement effacé beaucoup de granularité à cette fin, contrairement à l’étude de la diversification ci-dessus qui présentait des objectifs différents.
+
+\end{tcolorbox}
+```
+# La structuration de l'espace des pratiques numériques des jeunes
+
+## Les axes de positionnement et de distinction
+
+Puisque différents facteurs (âge, genre, origine sociale) semblent ordonner l'espace des pratiques numériques des jeunes, observer plus finement comment ils s'articulent et lesquels pèsent plus ou moins sur les différents axes de démarcation des pratiques permettrait d'affiner les hypothèses formulées jusqu'ici.
+
+Afin de caractériser plus qualitativement des profils d'usagers du numérique, nous réalisons une analyse des correspondances multiples (ACM). Cela nous permettra d'esquisser certaines hypothèses portant plus précisément sur les habitudes de consommation de contenus numériques, dans leur articulation avec des pratiques non numériques. Nous tenterons d'approcher comment la composante numérique interagit avec le « style de vie » des jeunes Français (en posant des questions relatives aux supports numériques, aux contenus consommés, aux temporalités). Nous détaillons les variables actives utilisées dans le @tbl-liste_var_actives_acm.
+
+Lorsque différentes fréquences étaient renseignées, nous avons construit des catégories pour distinguer des usages (c'est le cas pour la pratique des jeux vidéos et pour le fait de regarder des vidéos en ligne). Nous avons par ailleurs filtré notre échantillon afin de ne pas prendre en compte les jeunes ne regardant jamais de vidéos en ligne (cette pratique étant observée chez près de 90% de notre échantillon), car leur inclusion les rendaient déterminants dans les résultats de l'ACM, affectant l'intérêt analytique d'une telle ACM. Nous avons donc fait le choix de nous concentrer sur la large majorité des jeunes qui rapportent cette pratique, offrant davantage de granularité à notre analyse.
+
+```{r}
+#| label: fig-diagramme_eboulis
+#| fig-cap: "Diagramme d'éboulis"
+#| fig-cap-location: top
+
+diagramme_eboulis
+```
+
+Nous avons retenu deux axes, capturant respectivement 16% et 8,4% de l'inertie totale de notre nuage de points (@fig-diagramme_eboulis), ne parvenant à dessiner une interprétation cohérente du troisième, qui fait l'objet d'un saut dans le gain d'inertie capturée par rapport au deuxième axe.
+
+### Une structuration selon le niveau d'engagement dans des pratiques culturelles numériques
+
+L'axe factoriel principal qui structure notre population répartit les individus selon leur propension à pratiquer telle ou telle activité numérique. Il regroupe ainsi à l'est (@fig-projection_plan_factoriel) des individus ayant un large éventail de pratiques numériques : visionnage en ligne de vidéos, de films, de séries, de reportages ou encore de bandes-annonces, ainsi que suivi de l'actualité numérique. A l'inverse, on retrouve tout à l'ouest les individus ne déclarant pas ces pratiques. De manière assez forte, le fait de ne pas utiliser l'ordinateur comme support pour le visionnage de vidéos en ligne (conditionnellement au fait de regarder au moins de temps à autre des vidéos en ligne), situe beaucoup plus à l'ouest sur cet axe (poids de contribution de 5,09, voir @tbl-modalites_contributives_axe1_mis_en_forme). Cela suggère des styles d'usage du numérique liés à la prédominance de certains supports selon les individus -- l'observation de l'axe 2 nous renseignera davantage à ce sujet. La modalité de ne jamais jouer aux jeux vidéos est également assez proche de celle de rapporter peu de pratiques en ligne.
+
+```{r fig.width=40, fig.height=40, out.width = "100%", fig.align='center'}
+#| label: fig-projection_plan_factoriel
+#| fig-cap: "Plan factoriel formé par les axes 1 et 2 de l’ACM, avec projection des variables actives les plus contributives et des variables illustratives"
+#| fig-cap-location: top
+#| warning: false # un warning venait de là
+# fig.asp=0.618,
+# fig.width=20, fig.height=35, fig.align='default', out.width = "100%"
+
+projection_plan_factoriel
+```
+
+En projetant des variables socio-démographiques (@tbl-representation_var_supp), on remarque une structuration significativement genrée de ces pratiques (coordonnées respectivement 0,29 et -0,26 des barycentres pour « Homme » et « Femme »). Il semble ainsi y avoir un usage plutôt masculin, très diversifié et incluant une composante vidéoludique (regarder des *gameplays* en ligne), tandis que les femmes passeraient tendanciellement moins de temps sur l'ordinateur (que ce soit pour des vidéos, des films ou des séries), et seraient moins enclines à jouer aux jeux vidéos. Cette observation est intéressante à l'aune des hypothèses formulées dans la littérature concernant le jeu vidéo comme « forme d'initiation à l'univers informatique », et sachant les stéréotypes genrées dans les univers graphiques et les avatars des jeux vidéos, façonnant le « caractère fortement sexué des jeux vidéos » [@bergström2019].
+
+L'âge apparaît également assez structurant puisque les 25-29 ans se situent du côté ouest (coordonnée -0,20) et les 24-25 ans sont quant à eux légèrement à l'est (0,13). En croisant cela avec le barycentre de la modalité « PCS cadre », on peut imaginer retrouver ici une population étudiante, très insérée dans les pratiques numériques, tandis que les 25-29 ans déclarent un peu moins de pratiques. Si aucune catégorie sociale n'est représentée à l'extrême ouest, les jeunes issus de milieux ouvriers ont plus de chance de se trouver à l'ouest (coordonnée -0,16 pour cette modalité). Nous rappelons qu'ayant rejeté de l'analyse les jeunes ne regardant jamais de vidéos en ligne, la polarisation vers l'ouest selon l'origine sociale est potentiellement modérée par construction. Une tendance très nette de cumulation des privations ou des dénuements s'observe enfin lorsque l'on projette les modalités « beaucoup » et « peu » associées au score de pratique non-numérique calculé précédemment pour la @fig-distrib_poids_relatif_num, conformément à ce que suggérait le calcul de la prégnance relative du numérique.
+
+Ces observations corroborent celles faites précédemment via les études de fréquence, de diversification et de prégnance relative du numérique.
+
+```{r}
+#| label: tbl-modalites_contributives_axe1_mis_en_forme
+#| tbl-cap: "Contribution des modalités des variables actives à l'axe 1"
+
+tab_modalites_contributives_axe1_mis_en_forme
+```
+
+### Une structuration selon les styles de consommation numérique : supports, usages, contenus
+
+Si le premier axe de structuration met ainsi essentiellement en valeur les logiques de cumul ou d'absences de pratiques numériques, le deuxième axe renseigne quant à lui plus qualitativement, informant sur le style d'utilisation, c'est-à-dire à la fois sur les différents types d'usage et les genres des contenus consommés.
+
+Au nord, c'est l'ordinateur et encore davantage la télévision comme support de visionnage de vidéos qui contribuent à structurer l'axe, s'associant à l'absence d'utilisation du smartphone à cette fin (tout au nord). Il semble s'agir dans cette population du cadran nord d'un usage plutôt domestique du numérique, où les contenus consommés en ligne excluent très largement les vidéos, mais incluent les films et les séries. Le numérique semble ici prolonger les habitudes audiovisuelles, excluant toute une part des possibilités du numérique dans les consommations ; on note l'absence de pratique du jeu vidéo, et, à moindre échelle, l'absence de suivi des informations en ligne. Au sud au contraire, les films et séries en ligne sont exclus, au profit de formats de vidéos plus courts et diversifiés (et divertissants : *gameplay*, sport et contenu de youtubeurs étant assez contributifs), regardés sur smartphone, et associés à une forte pratique vidéoludique. En projetant les variables socio-démographiques, on constate que les milieux sociaux s'échelonnent de bas en haut suivant l'axe, sans que les jeunes issus de milieux cadres soient très au-dessus de l'axe horizontal (coordonnée 0,12), mais avec le barycentre ouvrier quant à lui nettement en deçà de l'axe (coordonnée -0,26).
+
+Le cas de l'usage d'un support ou d'un autre est intéressant : la coordonnée de la modalité « PCS ouvrier » indique, à la fois par l'axe 1 et par l'axe 2, que les jeunes issus de cette catégorie utilisent tendanciellement moins l'ordinateur et plus le smartphone pour les vidéos, contrairement aux jeunes issus de milieux cadres. Sans vouloir surinterpréter, nous pouvons supposer que cela renseigne sur les modalités de visionnage (les lieux, temporalités, l'attention) : le smartphone incarne un usage nomade, moins « installé », éventuellement plus saccadé (dans les transports, pendant la pause déjeuner) ou avec des formats plus courts et divertissants, tandis que l'ordinateur suggère davantage une activité pleinement consommée, pour elle-même, dans un cadre fixe et avec attention, moins « en dilettante », incluant peut-être davantage des vidéos longues, et peut-être associée à une pratique plus holistique de l'informatique. Conformément à ce que nous indiquait l'observation des supports (@fig-taux-equipement), on observe une stratification des styles d'usage du numérique en partie signifiée par les prédominances relatives de certains supports.
+
+Les hommes et les femmes sont également polarisés par cet axe. En plus d'être plus intense (axe 1), l'usage plutôt masculin du numérique serait également tendanciellement plus marqué par le fait d'utiliser le smartphone pour regarder des vidéos en ligne, et symétriquement les jeunes femmes auraient tendance à ne pas le faire, au profit de l'ordinateur ou la télévision. Elles regarderaient d'ailleurs plutôt, en proportion de leurs consommations numériques, des films et des séries, et moins de youtubeurs ou de vidéos de *gameplays*, tandis que les hommes consommeraient davantage ce dernier type de vidéo, ainsi que du sport en ligne.
+
+```{r}
+#| label: tbl-modalites_contributives_axe2_mis_en_forme
+#| tbl-cap: "Contribution des modalités des variables actives à l'axe 2"
+
+tab_modalites_contributives_axe2_mis_en_forme
+```
+
+Ainsi, si le premier axe nous donnait une idée des valeurs absolues de consommations selon le genre, on a ici davantage d'information sur les types de pratiques, et on constate que les jeunes femmes ont un usage plus domestique, plus ancré dans les traditions audiovisuelles, et les hommes plus ludiques et peut-être plus individualisées ou nomades (comme le suggère l'usage du smartphone). On peut faire l'hypothèse d'un effet d'âge (les hommes prolongeant en moyenne plus longtemps des pratiques plus « adolescentes »), ou bien l'hypothèse que ces résultats iraient dans le sens de la dynamique observée d'une féminisation des pratiques culturelles « légitimes » [@donnat2005], ces dernières consacrant davantage de leur « temps numérique » au 7e art qu'aux vidéos divertissantes sur smartphone. Concernant l'âge, un continuum s'observe, bien que moins marqué que le genre, centrant les 25-29 et positionnant les 15-19 au sud et les 20-24 au nord.
+
+En projetant les modalités de la variable désignant l'intensité des pratiques non numériques, on observe une répartition moins étendue comparativement au premier axe, même si elle pointe du sud vers nord, dans le sens allant de  « peu » à  « beaucoup » de pratiques numériques. Ainsi, alors-même que les supports et les usages numériques font l'objet d'une massification spectaculaire qui redéfinit les termes de l'opposition classique entre des classes diplômées tournées vers des sorties et un monde populaire replié sur la sphère intérieure, la fréquence et la diversité qualitative des pratiques reste structurante et l'éclectisme des classes supérieures s'observe ici, mêlant un haut niveau de pratiques numériques à un haut niveau de pratiques non numériques. À cet égard, la diagonale reliant les trois modalités de la variable renseignant sur l'intensité des pratiques non numériques est parlante.
+
+## Dessiner des profils de rapports au numérique
+
+```{r}
+#| label: fig-dendrogramme
+#| fig-cap: "Dendrogramme issu de la classification en trois classes"
+#| fig-cap-location: top
+
+dendrogramme
+```
+
+Pour mieux analyser comment se combinent les types de pratiques numériques au sein des jeunes selon l'origine sociale, l'âge et le genre, nous nous proposons d'esquisser des profils types à l'aide d'une classification ascendante hiérarchique (CAH), méthode qui regroupe les individus en cherchant à former des classes les plus homogènes possibles en interne et les plus hétérogènes entre elles. A partir des cinq premiers axes factoriels de l'ACM, nous retenons, via l'algorithme de Ward suivi d'une consolidation par la méthode des k-means, une classification en trois groupes, comme nous pouvons le voir sur le dendrogramme en @fig-dendrogramme. Chaque classe présente ses propres critères les plus caractéristiques (c'est-à-dire ceux qui regroupent le plus les individus qui la composent), et peut être projetée sur le plan factoriel (@fig-projection_classes).
+
+```{r}
+#| label: fig-projection_classes
+#| fig-cap: "Projection des individus sur le premier plan factoriel de l’ACM d'après leur classe issue de la CAH"
+#| fig-cap-location: top
+
+projection_classes
+```
+
+```{r}
+#| label: tbl-tri_a_plat_classes
+#| tbl-cap: "Tri à plat des classes construites avec la CAH"
+
+tri_a_plat_classes
+```
+
+### Les « distants » du numérique
+
+Les jeunes de la première classe (qui regroupe 38% des individus, voir @tbl-tri_a_plat_classes) déclarent peu de pratiques numériques. Ils ne regardent presque pas de films ou de séries en ligne (respectivement 6% et 13% d'entre eux contre plus de la moitié de la population d'ensemble, voir @tbl-caract_class1). Ils consomment des formats courts à une fréquence légèrement plus faible que le reste de l'échantillon (souvent entre 10 et 20 points de pourcentage de moins), suivent moins les infos en ligne (75% d'entre eux ne le font pas, contre 65%) et sont plus nombreux à ne jamais jouer aux jeux vidéos (environ un tiers contre un cinquième). Alors que presque deux tiers de la population étudiée utilise l'ordinateur pour regarder des vidéos en ligne, moins d'un tiers d'entre eux déclarent cette pratique, mais ils utilisent à cette fin le smartphone, dans une proportion analogue au reste des jeunes.
+
+```{r}
+#| label: tbl-caract_class1
+#| tbl-cap: "Caractéristiques de la classe 1 de la CAH"
+
+tab_caract_class1
+```
+
+On remarque qu'il n'y a pas de critère de composition très fort par l'âge, le genre ou l'origine sociale, dans le sens où il n'y a pas une modalité de ces variables qui dominerait à très large majorité cette classe. Cependant, il y a un marquage de l'origine ouvrière tendanciellement assez fort : presque la moitié des jeunes appartenant à cette catégorie se retrouvent dans cette classe, ainsi que près d'un tiers des jeunes issus des catégories d'indépendants, tandis qu'elle ne regroupe qu'un quart des jeunes issus de PCS cadre. Il y a également un fort marquage par le genre et l'âge, puisque 46% des 25-29 ans y figurent, ainsi que 42% des femmes. Cette classe regroupe des individus ayant une pratique numérique faible, particulièrement décentrée de l'ordinateur et des contenus audiovisuels longs et travaillés (films, séries), avec une faible diversité de pratiques. On note que ces  *« distants du numérique »*[^7] sont plus nombreux que le reste à déclarer peu de pratiques non numériques (36% contre 28%) : on retrouve bien ici les logiques de cumul des dénuements culturels déjà identifiées.
+
+[^7]: On précise que cette étiquetage est tout relatif à notre étude : il ne s'agit pas de remettre en question la massification observée -- à la fois concernant les équipements et certaines pratiques -- qui comme on l'a vu ne les épargne pas (cf. @tbl-pratiques-complet-mis-en_forme).
+
+### Les « classiques-légitimes » du numérique
+
+Au contraire, la seconde classe (34% des effectifs) regroupe des jeunes regardant beaucoup de films et séries en ligne (entre 20 et 25 points de pourcentage de plus que le reste, voir @tbl-caract_class2), et qui s'informent davantage en ligne, dans les mêmes ordres de grandeur. Ils se distinguent également légèrement par une plus faible utilisation du smartphone comme support de visionnage en ligne, préférant l'ordinateur. En revanche, et contrairement à la première classe, ils regardent un peu moins de contenus courts (vidéos de youtubeurs, clips, bande-annonces). On y retrouve encore beaucoup de femmes, puisque 40% d'entre elles s'y regroupent. Les autres variables socio-démographiques sont moins déterminantes, même si on note que les ouvriers sont légèrement sous-représentés et les 20-24 ans légèrement sur-représentés dans cette classe. Celle-ci regroupe les praticiens du numérique les plus  « légitimes », regardant moins de formats courts et divertissants (au profit de formats plus longs et travaillés), éloignés des pratiques vidéoludiques, et s'informant en ligne, tout en centrant leur pratique autour de l'ordinateur. Appelons-les les  *« classiques-légitimes du numériques »*.
+
+### Les « omnivores » du numérique
+
+Enfin, la troisième classe (regroupant 28% des individus) se distingue par un très fort taux de pratiques, très diversifiées, qu'il s'agisse de pratiques  « légitimes » ou plus neutres socialement. Ainsi, les fréquences de visionnage de films, de séries, de clips, sont systématiquement plus élevées que le reste de la population (avec des taux supérieurs à 85%, contre 50%-60% pour le reste, voir @tbl-caract_class3). C'est la même chose concernant l'usage de l'ordinateur pour regarder des vidéos, et cela est analogue sur l'ensemble des genres de vidéos considérés (entre 20 et 25 points de pourcentage en plus pour le sport en ligne et les youtubeurs, et on note une fréquence plus de deux fois plus élevée pour les *gameplays*, ainsi que pour les bandes-annonce et les reportages). Ils déclarent deux fois plus s'informer en ligne, et 42% d'entre eux jouent aux jeux vidéos quotidiennement (contre un quart pour le reste). Ils utilisent également significativement plus le numérique pour des pratiques amateurs, et enfin déclarent utiliser davantage que la moyenne tous les supports pour regarder des vidéos en ligne (ordinateur, télévision, tablette, smartphone). Ce sont donc des *omnivores du numérique*, très engagés dans les pratiques à la fois  « neutres » et  « légitimes », marqués par un attrait vidéoludique fort, utilisant beaucoup l'ordinateur mais pas seulement. On y trouve 40% des hommes de notre échantillon, qui représentent 69% de la classe.
+
+### Synthèse sur la structuration de ces profils
+
+En conclusion, le poids structurant du genre ressort particulièrement et semble jouer fortement sur la classification des jeunes dans ces trois groupes[^8]. De manière caractéristique, la troisième classe, très engagée dans le numérique et dans le vidéoludique est avant tout  « masculine », bien plus qu'elle n'est structurée par l'origine sociale ou l'âge[^9], tandis que les femmes sont à 82% soit plus en retrait du numérique (pour la moitié), soit représentées parmi les  « classiques-légitimes du numérique » (pour l'autre moitié). La CAH affine ainsi la lecture que l'on pouvait faire de l'ACM, qui masquait quelque peu le poids féminin dans cette deuxième catégorie. L'origine sociale pèse quant à elle particulièrement pour les jeunes qui sont enfants d'ouvriers ou eux-mêmes ouvriers, qui se retrouvent à près de moitié parmi les *« distants »* du numérique, catégorie associée comme on l'a vu à peu de pratiques légitimes ainsi qu'à une faible diversité de pratiques non numériques.
+
+[^8]: Nous avons également croisé les profils dessinés dans cette étude avec les « univers de pratiques » les plus représentées parmis les jeunes, mis au jour et décrits dans @lombardo2020, dans le @tbl-tri_croise_classes_univers_pratiques.
+
+[^9]: On note cependant que la projection de la CAH sur le plan factoriel ( @fig-projection_plan_factoriel), montre des individus plus dispersés en bas à droite : il ne s'agirait donc pas de sur-interpréter l'homogénéité de la catégorie, et nous pouvons imaginer, conformément à ce qu'on observe sur les modalités représentés par l'ACM sur le plan factoriel, retrouver aussi dans cette catégorie des individus plus jeunes et / ou de PCS ouvrière qui sont sans doute moins omnivores, et plus concentrés sur certaines pratiques.
+
+On retrouve également les plus âgés de notre échantillon (25-29 ans) largement surreprésentés dans cette catégorie, de manière cohérente avec ce qu'on a pu constater jusqu'ici. On notera que cette classification met en exergue de manière intéressante le caractère assez clivant du smartphone, dont l'usage pour des contenus vidéos courts est dominant dans le panier de consommation numérique des « plus en retrait », tandis qu'il est beaucoup moins utilisé à cette fin par les « classiques-légitimes ». Notons que si nous nous concentrons ici sur les pratiques numériques, il faut garder en tête que le passage de l'ère audiovisuelle vers l'ère médiatique s'est inégalement faite selon les âges et les milieux sociaux, et que certains des profils dressés ici gagneraient en relief si on considérait leur rapport à la télévision et à la radio : Octobre [-@octobre2014a, p.109-150] rapporte ainsi que d'après l'enquête PCF de 2008, 20% des jeunes, principalement âgés de 25-29 ans et issus de milieux populaires (qui pour ces deux critères ont des chances de se retrouve aussi dans notre première classe), sortent peu, ont un panel étroit de pratiques, mais sont très forts consommateurs de la télévision. Plusieurs effets se croisent ainsi : le milieu social se cumule à l'âge puisqu'ils sont plus souvent mariés et/ou parents, et centrent leurs pratiques sur l'univers familial. On comprend ainsi comment ce profil-type de la jeunesse a conservé une consommation plus traditionnellement audiovisuelle et distante du numérique.
+
+# Les déterminants de ces appropriations différenciées
+
+Afin d'identifier les déterminants qui agissent sur la distribution dans ces trois profils-types, nous réalisons une régression logistique multinomiale, qui permet de modéliser des variables dépendantes catégorielles à plus de deux niveaux. Nos trois classes, les *« distants »*, les *« classiques-légitimes »* et les *« omnivores »* constituent donc les trois variables dépendantes que nous cherchons à expliquer. Nous avons choisi la classe légèrement plus nombreuse comme référence, à savoir la classe 1, celle des *« distants » du numérique*, dont la comparaison systématique avec les autres classes est intéressante vu qu'elle regroupe notamment les jeunes de PCS ouvriers et les jeunes femmes de l'échantillon déclarant moins de pratiques, amenant à s'interroger sur les effets propres qui prédisent une plus grande distance au numérique que la moyenne des autres jeunes. Nous testons comme variables indépendantes le genre, l'âge et l'origine sociale, pour voir ce que ce modèle peut nous dire de leur effet « toutes choses égales par ailleurs », et pour observer plus finement leurs effets croisés. Nous introduisons également une nouvelle variable comme hypothétique prédicteur du fait d'appartenir à une classe plutôt qu'à une autre : la taille de la ville de résidence, nous renseignant sur la zone géographique d'habitation des jeunes étudiés. Approximer plus tôt son éventuel effet propre aurait été difficile sachant le fort risque d'existence de biais par variable cachée, sachant qu'en moyenne les résidents de diverses zones géographiques se distinguent fortement sur d'autres dimensions [@cayouette-remblière2019] (et que 15% de notre échantillon réside dans l'aire urbaine de Paris). Nous ajoutons également la variable du niveau de pratiques culturelles non numériques, pour corroborer les hypothèses de corrélation forte sur les taux d'activités culturelles, qu'elles soient numériques ou non, et isoler un éventuel effet propre.
+
+## La polarisation par l'âge et le genre
+
+L'effet polarisant du genre est confirmé ici : être une femme implique d'avoir beaucoup moins de chance (rapport de cotes 0,31) qu'un homme de compter parmi les *« omnivores »* plutôt que parmi les *« distants »* (@tbl-modele_log_sans_interaction). On voit également plus nettement que via l'analyse de la CAH à quel point la classe des *« omnivores »*, en plus d'être très masculine, est plus jeune que les *« distants »*. En effet, on constatait une légère surreprésentation des 20-24 ans au sein des *« omnivores »*, et on observe lorsqu'on contrôle avec le niveau de diplôme des parents[^10] (@tbl-modele_log_interaction_age_dipl_parents) que les 25-29 ans ont significativement moins de chance (rapport de cotes de 0,47) que les 15-19 ans de figurer parmi les *« omnivores du numérique »* plutôt que parmi les *« distants » du numérique*. Toujours lorsqu'on contrôle par le niveau de diplôme des parents, ni le genre ni l'âge ne sont en revanche significatifs pour la prédiction d'appartenir aux *« classiques-légitimes »* plutôt qu'aux *« distants »*[^11]. Ces deux variables socio-démographiques jouent donc sur les extrêmes : une pratique intense, diversifiée et vidéoludique, sans s'illustrer significativement dans les pratiques légitimes, est très « masculine » et caractérise davantage des pratiques « adolescentes » que par des pratiques caractéristiques de jeunes adultes plus avancés en âge. Être plus modéré dans sa consommation numérique et plus distant de l'univers informatique est beaucoup plus « féminin » et caractéristique de ces jeunes adultes dans la seconde moitié de leur vingtaine.
+
+[^10]: En testant différentes interactions, on s'aperçoit que celle-ci, qui n'est pas significative pour toutes les classes d'âge, joue cependant fortement par endroits.
+
+[^11]: Sans contrôle, seule la catégorie 20-24 ans présentait un effet pour *« classiques-légitimes »* plutôt que *« distants »*, mais l'interaction *âge - niveau de diplôme des parents* est précisément significative sur ces individus.
+
+```{r}
+#| label: tbl-modele_log_sans_interaction
+#| tbl-cap: "Régression logistique multinomiale sur les classes de la CAH"
+
+tab_modele_log_sans_interaction_mis_en_forme
+```
+
+## Le poids de l'origine sociale et du lieu de résidence
+
+On remarque que l'origine sociale « préserve » d'être un *« distant » du numérique* : les jeunes dont au moins un parent est diplômé du supérieur ont respectivement 1,79 et 1,84 fois plus de chance de compter parmi les *« classiques-légitimes »* ou les *« omnivores »*. Dans les deux cas, c'est seulement un niveau de diplôme strictement supérieur au bac qui est significatif. En plus d'augmenter les chances d'avoir une pratique numérique bien investie et diversifiée, un bon « capital scolaire institutionnalisé » [@bourdieu1979] des parents oriente vers des pratiques numériques *« classiques-légitimes »*. On note que ce facteur ne prédit pourtant pas d'appartenir aux *« classiques-légitimes »* plutôt qu'aux *« omnivores »* (pas de significativité du rapport de cote d'appartenir à cette dernière classe quand on prend la classe 2, i.e. *« classique-légitime »*, comme référence, voir @tbl-modele_log_classe2_en_ref_interaction_age_dipl_parents), indiquant que les logiques de segmentation sociale des pratiques numériques des jeunes semblent davantage prégnantes quant à la démarcation « par le bas » (être ou ne pas être un *« distant du numérique »*) que « par le haut » (être ou non un *« classique-légitime »*).
+
+Nous ne trouvons pas d'interaction significative entre l'origine sociale et le genre, mais il serait intéressant de voir si sur un échantillon plus grand ou avec une variable capturant avec plus de précision l'origine sociale, nous trouverions des variations significatives de l'effet du genre décliné selon les modalités de l'origine sociale. La littérature a pu en effet mettre en exergue la manière dont les jeunes filles issues de milieux favorisées se comportent davantage « comme les garçons » [@détrez2017], échappant davantage aux déterminismes genrés dans la définition de leurs goûts et dégoûts. Quant à l'origine géographique, elle influe uniquement sur les chances d'appartenir à la classe des *« omnivores »* plutôt qu'à la classe des *« distants »* (et non sur celles d'être un *« classique-légitime »*). Ainsi les jeunes résidant dans des villes moyennes et grandes ainsi que ceux résidant en métropole et en région parisienne ont respectivement 1,77 et 1,97 fois plus de chance que ceux habitant dans une commune rurale ou une petite ville de figurer parmi les *« omnivores »* plutôt que les *« distants »*. Cela demeure difficile à interpréter rigoureusement tant les variables corrélées à la zone géographique et jouant sur les manières d'investir son temps libre sont diverses, mais l'effet propre de cette variable suggère que les « urbains » ont davantage des loisirs tournés vers l'informatique et numériquement intenses.
+
+## Un omnivorisme prolongeant l'éclectisme traditionnel
+
+Par ailleurs, on constate le caractère très prédicteur du nombre de pratiques culturelles non numériques : en déclarer beaucoup est associé au fait d'avoir beaucoup moins de chance de compter parmi les *« distants » du numériques* (rapport de cotes respectivement de 1,51 et 3,26 concernant le fait d'appartenir plutôt aux *« classiques-légitimes »* ou bien aux *« omnivores »*). On note la corrélation très forte entre l'éclectisme culturel traditionnel et l'omnivorisme numérique, et on remarque aussi que même ceux qui n'ont qu'un niveau « moyen » de pratiques culturelles non numériques ont significativement plus de chances de compter parmi les *« omnivores »* que les *« distants »*. Cela va dans le sens de l'hypothèse d'une intersection forte entre jeunes peu tournés vers les sorties et les équipements culturels et ceux diversifiant peu leurs usages du numérique, et qui semble jouer en plus des déterminants par la position sociale. Ainsi la composante numérique ne semble pas renouveler fondamentalement le rapport au temps libre via l'introduction d'une diversification des contenus qui s'imposerait à tous : ces résultats vont dans le sens de ce que pointent Beuscart, Dagiral et Parasie [-@beuscart2019, p. 82-109] concernant l'absence d'un déterminisme technologique, qui associerait l'arrivée d'internet[^12] à une plus grande accessibilité et diversité des contenus culturels.
+
+[^12]: Sans réduire les pratiques numériques à l'usage d'internet, nous rappelons que notre ACM, à partir de laquelle ont été construites la CAH puis la régression, s'intéressait essentiellement aux consommations de contenus numériques en ligne.
+
+Pour conclure, nous n'identifions pas ici de prédicteur significatif au fait d'appartenir à la classe des *« classiques-légitimes »*, mais nous constatons une polarisation nette entre les *« distants »* et les *« omnivores »*, marquée par le genre, l'origine sociale, la zone géographique de résidence, et fortement corrélée au fait d'avoir des pratiques culturelles non-numériques variées.
+
+# Conclusion {.unnumbered}
+
+La dynamique contrastée entre une tendance à la massification et la reconduction de fortes stratifications appelle à faire preuve de nuance lors de l'étude des pratiques numériques des jeunes, d'autant plus qu'ils constituent le public le plus concerné par cette massification. On a retrouvé dans cette étude des taux de pratiques tendanciellement assez élevés dans tous les sous-groupes, mais certains sont sur-représentés dans les usages faibles et faiblement diversifiés. En se penchant sur l'espace social des pratiques numériques déclarées, on constate des taux de diversifications qui suivent une stratification classique sur l'échelle sociale, ainsi que des styles d'usages différents.
+
+D'abord, une observation statistique exploratoire aura mis en lumière certaines tendances notables. Via l'étude du taux de prégnance relative des pratiques numériques, nous pouvions émettre dès le début de cette étude l'hypothèse que les jeunes issus de PCS ouvrière sont à la fois ceux qui déclarent le moins de pratiques culturelles en valeurs absolues, toutes confondues (numériques et non numériques), et aussi ceux qui présentent le plus souvent un univers de pratique concentré sur le numérique plutôt que sur les sorties. Ceci pourrait nous inviter à s'interroger, dans une perspective socio-historique, sur l'éventuelle continuité entre la centralité de l'audiovisuel et celle du numérique au sein des milieux ouvriers, continuité qui serait incarnée par les jeunes de cette catégorie. L'étude spécifique de la place contemporaine de la télévision pour les jeunes de classes populaires permettrait alors de compléter nos analyses. On comprend ainsi que l'on retrouve beaucoup de jeunes de PCS ouvriers dans le profil des "distants" du numérique mis en avant par la CAH, centrés plutôt autour du smartphone et des contenus courts, mais dont l'analyse des pratiques d'écran ne sauraient être épuisées par l'étude de leur appropriation du numérique.
+
+Le genre est apparu avec l'ACM -- et a été confirmé avec la régression -- comme un principe structurant, de manière très prégnante et significative.  Avec l'origine sociale, il préside nettement à la répartition entre d'une part un univers intense, diversifié, assez fortement ludique et centré autour de l'ordinateur, et d'autre part un univers beaucoup moins diversifié, centré autour des formats courts et du smartphone, de manière assez peu intensive. L'âge se retrouve également comme un facteur assez structurant, que nous aurons eu du mal à isoler et à quantifier dans ses interactions avec les autres facteurs, mais dont nous avons eu des indices sur la manière dont il se croise avec les effets de genre et d'origine sociale. Au sein même de notre échantillon, l'étude des fréquences de certaines pratiques a pu mettre en exergue une « technophilie », plus adolescente, qui semble être le signe d'un effet d'âge persistant que complémente un effet de génération accompagnant la massification de l'informatique connectée.
+
+Enfin, la régression a mis en valeur le poids des variables de la zone géographique et des prolongations sur le numérique de l'éclectisme traditionnel, appelant à des analyses plus approfondies pour saisir finement ces effets. Ceci rappelle combien la stratification sociale des pratiques culturelles régit également l'espace numérique, même chez les jeunes, contre l'idée d'une ère de la diffusion des contenus auprès de tous.
+
+\newpage
+
+# Références {.unnumbered}
+
+::: {#refs}
+:::
+
+```{r}
+#| echo: false
+# Note : J'ai ajouté ".unnumbered" à la classe de la section Références, pour qu'elle en soit pas numérotée.
+# J'ai aussi ajouté l'id refs à une div vide en dessous (ça ne marche pas si je mets #refs directement au titre Références), pour que la liste bibliographique soit placée ici, et que je puisse donc rajouter des sections, comme Annexes, après les Références (cf Quarto -> Citations & Footnotes)
+```
+
+\newpage
+
+# Liste des figures {.unnumbered}
+
+\listoffigures
+
+\newpage
+
+# Liste des tableaux {.unnumbered}
+
+\listoftables
+
+\newpage
+
+# Annexe {.unnumbered}
+
+\vspace{2cm}
+
+```{r}
+#| label: fig-graph_freq_connexion_internet
+#| fig-cap: "Fréquence de connexion à internet selon l'âge"
+#| fig-cap-location: top
+#| fig-pos: 'H'
+
+graph_freq_connexion_internet
+```
+
+```{r}
+#| label: fig-distribution_diversite_usages_numeriques
+#| fig-cap: "Distribution de l'indice de diversification des pratiques numériques"
+#| fig-cap-location: top
+#| fig-pos: 'H'
+
+graphique_distribution_diversite_usages_numeriques
+```
+
+```{r}
+#| label: tbl-liste_var_pour_nb_usage_num
+#| tbl-cap: "Liste des variables utilisées dans le calcul de l'indice de diversification des usages du numérique"
+
+liste_var_pour_nb_usage_num
+```
+
+```{r}
+#| label: tbl-liste_var_pour_score_prat_cult_num
+#| tbl-cap: "Liste des variables de pratiques culturelles numériques incluses dans le calcul de la prégnance relative du numérique"
+
+liste_var_pour_score_prat_cult_num
+```
+
+```{r}
+#| label: tbl-liste_var_pour_score_prat_cult__non_num
+#| tbl-cap: "Liste des variables de pratiques culturelles non numériques incluses dans le calcul de la prégnance relative du numérique"
+
+liste_var_pour_score_prat_cult_non_num
+```
+
+```{r}
+#| label: tbl-liste_var_actives_acm
+#| tbl-cap: "Liste des variables actives de l'ACM"
+
+liste_var_actives_acm
+```
+
+```{r}
+#| label: tbl-representation_var_supp
+#| tbl-cap: "Coordonnées des variables illustratives sur les deux premiers axes de l'ACM"
+
+tab_representation_var_supp
+```
+
+```{r}
+#| label: tbl-tri_croise_classes_univers_pratiques
+#| tbl-cap: "Tri croisé des classes de la CAH et des univers de pratiques identifiés Lombardo et Wolff (2020)"
+
+tri_croise_classes_univers_pratiques
+```
+
+```{r}
+#| label: tbl-caract_class2
+#| tbl-cap: "Caractéristiques de la classe 2 de la CAH"
+
+tab_caract_class2
+```
+
+```{r}
+#| label: tbl-caract_class3
+#| tbl-cap: "Caractéristiques de la classe 3 de la CAH"
+
+tab_caract_class3
+```
+
+```{r}
+#| label: tbl-modele_log_interaction_age_dipl_parents
+#| tbl-cap: "Régression logistique multinomiale sur les classes de la CAH avec interaction âge - niveau diplôme"
+
+tab_modele_log_interaction_age_dipl_parents_mis_en_forme
+```
+
+```{r}
+#| label: tbl-modele_log_classe2_en_ref_interaction_age_dipl_parents
+#| tbl-cap: "Régression logistique multinomiale sur les classes de la CAH avec comme référence la classe des « classiques-légitimes » du numérique"
+
+tab_modele_log_classe2_en_ref_interaction_age_dipl_parents_mis_en_forme
+```
